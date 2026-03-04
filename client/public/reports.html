@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports - Mazuri</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/navbar.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo"><a href="dashboard.html">Mazuri</a></div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li class="nav-item"><a href="collections.html" class="nav-link">Collections</a></li>
+        <li class="nav-item"><a href="schedules.html" class="nav-link">Schedules</a></li>
+        <li class="nav-item"><a href="disposal.html" class="nav-link">Disposal</a></li>
+        <li class="nav-item"><a href="reports.html" class="nav-link active">Reports</a></li>
+        <li class="nav-item"><a href="users.html" class="nav-link">Users</a></li>
+        <li class="nav-item"><a href="https://github.com/oumae3471-code/MAZURI-WASTE-MANAGEMENT-AND-CONTROL-SYSTEM" target="_blank" class="nav-link">Project Repo</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" onclick="logout()">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="flex-between mb-3">
+      <h1>Reports</h1>
+      <button class="btn-primary" onclick="toggleGenerateForm()">+ Generate Report</button>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <div id="generateFormContainer" class="card hidden">
+      <div class="card-header"><h2>Generate New Report</h2></div>
+      <form id="generateReportForm" onsubmit="handleGenerateReport(event)">
+        <div class="form-group">
+          <label for="reportType">Report Type</label>
+          <select id="reportType" name="reportType" required>
+            <option value="">Select type</option>
+            <option value="collections">Collections Summary</option>
+            <option value="schedules">Schedules Summary</option>
+            <option value="disposal">Disposal Summary</option>
+            <option value="monthly">Monthly Report</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Start Date</label>
+            <input type="date" id="startDate" name="startDate" required>
+          </div>
+          <div class="form-group">
+            <label for="endDate">End Date</label>
+            <input type="date" id="endDate" name="endDate" required>
+          </div>
+        </div>
+
+        <div class="flex">
+          <button type="submit" class="btn-primary">Generate Report</button>
+          <button type="button" class="btn-secondary" onclick="toggleGenerateForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Period</th>
+              <th>Generated Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reportsBody">
+            <tr><td colspan="5" class="text-center">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.bundle.js"></script>
+  <script>
+    function toggleGenerateForm() {
+      document.getElementById('generateFormContainer').classList.toggle('hidden');
+    }
+
+    async function loadReports() {
+      try {
+        const response = await reportService.getAll();
+        const reports = response.data || response || [];
+        displayReports(reports);
+      } catch (error) {
+        showError('Failed to load reports');
+      }
+    }
+
+    function displayReports(reports) {
+      const tbody = document.getElementById('reportsBody');
+      
+      if (!reports.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No reports found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = reports.map(r => `
+        <tr>
+          <td>${r.reportType || '--'}</td>
+          <td>${formatDate(r.dateRange?.startDate)} to ${formatDate(r.dateRange?.endDate)}</td>
+          <td>${formatDate(r.createdAt)}</td>
+          <td><span class="badge">${r.status || 'generated'}</span></td>
+          <td>
+            <div class="actions">
+              <button class="btn-primary btn-small" onclick="downloadReport('${r._id || r.id}')">Download</button>
+              <button class="btn-danger btn-small" onclick="deleteReport('${r._id || r.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function handleGenerateReport(e) {
+      e.preventDefault();
+      
+      const formData = {
+        reportType: document.getElementById('reportType').value,
+        dateRange: {
+          startDate: document.getElementById('startDate').value,
+          endDate: document.getElementById('endDate').value
+        }
+      };
+
+      try {
+        await reportService.generate(formData);
+        showSuccess('Report generated successfully');
+        toggleGenerateForm();
+        document.getElementById('generateReportForm').reset();
+        loadReports();
+      } catch (error) {
+        showError(error.message || 'Failed to generate report');
+      }
+    }
+
+    async function downloadReport(id) {
+      try {
+        const response = await reportService.download(id);
+        // Create download link
+        const url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `report-${id}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentElement.removeChild(link);
+        showSuccess('Report downloaded');
+      } catch (error) {
+        showError('Failed to download report');
+      }
+    }
+
+    async function deleteReport(id) {
+      if (!confirm('Delete this report?')) return;
+      try {
+        await reportService.delete(id);
+        showSuccess('Report deleted');
+        loadReports();
+      } catch (error) {
+        showError('Failed to delete report');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!isLoggedIn()) window.location.href = 'login.html';
+      loadReports();
+    });
+  </script>
+</body>
+</html>

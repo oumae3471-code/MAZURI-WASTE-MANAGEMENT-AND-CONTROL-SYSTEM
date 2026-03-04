@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Mazuri</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <img src="img/logo.svg" alt="Mazuri Logo" style="width: 80px; height: 80px; margin: 0 auto;">
+        <h1 class="auth-title" style="margin-top: 1rem;">Mazuri</h1>
+        <p class="auth-subtitle">Waste Management System</p>
+      </div>
+
+      <div id="alertContainer"></div>
+
+      <form action="/login" method="post">
+        <div class="form-group">
+          <label for="identifier">Email or Phone</label>
+          <input 
+            type="text" 
+            id="identifier" 
+            name="identifier" 
+            required 
+            placeholder="Email or phone"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            required 
+            placeholder="Enter your password"
+          >
+        </div>
+
+        <button type="submit" class="btn-primary btn-block">
+          Sign In
+        </button>
+      </form>
+
+      <p class="auth-link">
+        Don't have an account? <a href="register.html">Register here</a>
+      </p>
+    </div>
+  </div>
+
+
+</body>
+</html>

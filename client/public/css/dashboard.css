@@ -1,0 +1,63 @@
+.stat-card {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 35%, #1e40af 65%, #0369a1 100%),
+              url('../img/dashboard-bg.svg') no-repeat center/cover;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.stat-card:nth-child(2) {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+}
+
+.stat-card:nth-child(3) {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+}
+
+.stat-card:nth-child(4) {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+}
+
+.stat-card h3 {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-card .value {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.mt-3 {
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stat-card {
+    padding: 1.5rem;
+  }
+
+  .stat-card .value {
+    font-size: 1.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

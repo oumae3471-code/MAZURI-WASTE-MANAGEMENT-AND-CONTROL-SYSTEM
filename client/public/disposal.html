@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disposal Sites - Mazuri</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/navbar.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo"><a href="dashboard.html">Mazuri</a></div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li class="nav-item"><a href="collections.html" class="nav-link">Collections</a></li>
+        <li class="nav-item"><a href="schedules.html" class="nav-link">Schedules</a></li>
+        <li class="nav-item"><a href="disposal.html" class="nav-link active">Disposal</a></li>
+        <li class="nav-item"><a href="reports.html" class="nav-link">Reports</a></li>
+        <li class="nav-item"><a href="users.html" class="nav-link">Users</a></li>
+        <li class="nav-item"><a href="https://github.com/oumae3471-code/MAZURI-WASTE-MANAGEMENT-AND-CONTROL-SYSTEM" target="_blank" class="nav-link">Project Repo</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" onclick="logout()">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="flex-between mb-3">
+      <h1>Disposal Sites</h1>
+      <button class="btn-primary" onclick="toggleNewForm()">+ New Site</button>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <div id="newFormContainer" class="card hidden">
+      <div class="card-header"><h2>Create New Disposal Site</h2></div>
+      <form id="newSiteForm" onsubmit="handleNewSite(event)">
+        <div class="form-group">
+          <label for="name">Site Name</label>
+          <input type="text" id="name" name="name" required placeholder="Disposal site name">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address" required placeholder="Site address">
+          </div>
+          <div class="form-group">
+            <label for="capacity">Capacity (kg)</label>
+            <input type="number" id="capacity" name="capacity" required placeholder="Site capacity">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="type">Disposal Type</label>
+          <select id="type" name="type" required>
+            <option value="">Select type</option>
+            <option value="landfill">Landfill</option>
+            <option value="recycling">Recycling</option>
+            <option value="incinerator">Incinerator</option>
+            <option value="composting">Composting</option>
+          </select>
+        </div>
+
+        <div class="flex">
+          <button type="submit" class="btn-primary">Create Site</button>
+          <button type="button" class="btn-secondary" onclick="toggleNewForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Address</th>
+              <th>Type</th>
+              <th>Capacity</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sitesBody">
+            <tr><td colspan="5" class="text-center">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.bundle.js"></script>
+  <script>
+    function toggleNewForm() {
+      document.getElementById('newFormContainer').classList.toggle('hidden');
+    }
+
+    async function loadSites() {
+      try {
+        const response = await disposalService.getAll();
+        const sites = response.data || response || [];
+        displaySites(sites);
+      } catch (error) {
+        showError('Failed to load disposal sites');
+      }
+    }
+
+    function displaySites(sites) {
+      const tbody = document.getElementById('sitesBody');
+      
+      if (!sites.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No sites found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = sites.map(s => `
+        <tr>
+          <td>${s.name || '--'}</td>
+          <td>${s.address || '--'}</td>
+          <td>${s.type || '--'}</td>
+          <td>${s.capacity || '--'} kg</td>
+          <td>
+            <div class="actions">
+              <button class="btn-danger btn-small" onclick="deleteSite('${s._id || s.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function handleNewSite(e) {
+      e.preventDefault();
+      
+      const formData = {
+        name: document.getElementById('name').value,
+        address: document.getElementById('address').value,
+        capacity: parseFloat(document.getElementById('capacity').value),
+        type: document.getElementById('type').value
+      };
+
+      try {
+        await disposalService.create(formData);
+        showSuccess('Disposal site created');
+        toggleNewForm();
+        document.getElementById('newSiteForm').reset();
+        loadSites();
+      } catch (error) {
+        showError(error.message || 'Failed to create site');
+      }
+    }
+
+    async function deleteSite(id) {
+      if (!confirm('Delete this site?')) return;
+      try {
+        await disposalService.delete(id);
+        showSuccess('Site deleted');
+        loadSites();
+      } catch (error) {
+        showError('Failed to delete site');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!isLoggedIn()) window.location.href = 'login.html';
+      loadSites();
+    });
+  </script>
+</body>
+</html>

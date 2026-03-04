@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collections - Mazuri</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/navbar.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo"><a href="dashboard.html">Mazuri</a></div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li class="nav-item"><a href="collections.html" class="nav-link active">Collections</a></li>
+        <li class="nav-item"><a href="schedules.html" class="nav-link">Schedules</a></li>
+        <li class="nav-item"><a href="disposal.html" class="nav-link">Disposal</a></li>
+        <li class="nav-item"><a href="reports.html" class="nav-link">Reports</a></li>
+        <li class="nav-item"><a href="users.html" class="nav-link">Users</a></li>
+        <li class="nav-item"><a href="https://github.com/oumae3471-code/MAZURI-WASTE-MANAGEMENT-AND-CONTROL-SYSTEM" target="_blank" class="nav-link">Project Repo</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" onclick="logout()">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="flex-between mb-3">
+      <h1>Waste Collections</h1>
+      <button class="btn-primary" onclick="toggleNewForm()">+ New Collection</button>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <div id="newFormContainer" class="card hidden">
+      <div class="card-header">
+        <h2>Record New Collection</h2>
+      </div>
+      <form id="newCollectionForm" onsubmit="handleNewCollection(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="source">Source</label>
+            <input type="text" id="source" name="source" required placeholder="e.g., Market A">
+          </div>
+          <div class="form-group">
+            <label for="wasteType">Waste Type</label>
+            <select id="wasteType" name="wasteType" required>
+              <option value="">Select type</option>
+              <option value="organic">Organic</option>
+              <option value="plastic">Plastic</option>
+              <option value="paper">Paper</option>
+              <option value="metal">Metal</option>
+              <option value="mixed">Mixed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" id="quantity" name="quantity" required placeholder="Amount">
+          </div>
+          <div class="form-group">
+            <label for="unit">Unit</label>
+            <select id="unit" name="unit" required>
+              <option value="kg">kg</option>
+              <option value="tons">tons</option>
+              <option value="bags">bags</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input type="text" id="location" name="location" required placeholder="Collection location">
+        </div>
+
+        <div class="form-group">
+          <label for="collectionDate">Collection Date</label>
+          <input type="datetime-local" id="collectionDate" name="collectionDate" required>
+        </div>
+
+        <div class="flex">
+          <button type="submit" class="btn-primary">Save Collection</button>
+          <button type="button" class="btn-secondary" onclick="toggleNewForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Type</th>
+              <th>Quantity</th>
+              <th>Location</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="collectionsBody">
+            <tr><td colspan="7" class="text-center">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.bundle.js"></script>
+  <script>
+    function toggleNewForm() {
+      document.getElementById('newFormContainer').classList.toggle('hidden');
+    }
+
+    async function loadCollections() {
+      try {
+        const response = await collectionService.getAll();
+        const collections = response.data || response || [];
+        displayCollections(collections);
+      } catch (error) {
+        showError('Failed to load collections');
+      }
+    }
+
+    function displayCollections(collections) {
+      const tbody = document.getElementById('collectionsBody');
+      
+      if (!collections.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No collections found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = collections.map(c => `
+        <tr>
+          <td>${c.source || '--'}</td>
+          <td>${c.wasteType || '--'}</td>
+          <td>${c.quantity?.value || '--'} ${c.quantity?.unit || ''}</td>
+          <td>${c.location?.address || c.location || '--'}</td>
+          <td>${formatDate(c.createdAt)}</td>
+          <td><span class="badge">${c.status || 'recorded'}</span></td>
+          <td>
+            <div class="actions">
+              <button class="btn-danger btn-small" onclick="deleteCollection('${c._id || c.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function handleNewCollection(e) {
+      e.preventDefault();
+      
+      const formData = {
+        source: document.getElementById('source').value,
+        wasteType: document.getElementById('wasteType').value,
+        quantity: {
+          value: parseFloat(document.getElementById('quantity').value),
+          unit: document.getElementById('unit').value
+        },
+        location: { address: document.getElementById('location').value },
+        collectionDate: document.getElementById('collectionDate').value
+      };
+
+      try {
+        await collectionService.create(formData);
+        showSuccess('Collection recorded successfully');
+        toggleNewForm();
+        document.getElementById('newCollectionForm').reset();
+        loadCollections();
+      } catch (error) {
+        showError(error.message || 'Failed to save collection');
+      }
+    }
+
+    async function deleteCollection(id) {
+      if (!confirm('Delete this collection?')) return;
+      try {
+        await collectionService.delete(id);
+        showSuccess('Collection deleted');
+        loadCollections();
+      } catch (error) {
+        showError('Failed to delete collection');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!isLoggedIn()) window.location.href = 'login.html';
+      loadCollections();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mazuri Waste Management and Control System - A web-based platform for waste collection and monitoring">
+  <title>Mazuri - Waste Management System</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/navbar.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <a href="dashboard.html" style="display: flex; align-items: center; gap: 0.5rem;">
+          <img src="img/logo.svg" alt="Mazuri" style="width: 32px; height: 32px;">
+          Mazuri
+        </a>
+      </div>
+      <ul class="nav-menu" id="navMenu">
+        <li class="nav-item"><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li class="nav-item"><a href="collections.html" class="nav-link">Collections</a></li>
+        <li class="nav-item"><a href="schedules.html" class="nav-link">Schedules</a></li>
+        <li class="nav-item"><a href="disposal.html" class="nav-link">Disposal</a></li>
+        <li class="nav-item"><a href="reports.html" class="nav-link">Reports</a></li>
+        <li class="nav-item"><a href="users.html" class="nav-link">Users</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" onclick="logout()">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div id="app">
+    <!-- Page content loads here -->
+  </div>
+
+  <script src="js/app.bundle.js"></script>
+  <script>
+    // Always show login first
+    window.location.href = 'login.html';
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

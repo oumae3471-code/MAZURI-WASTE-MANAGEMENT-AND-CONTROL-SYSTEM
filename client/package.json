@@ -1,0 +1,14 @@
+{
+  "name": "mazuri-client",
+  "version": "1.0.0",
+  "description": "Frontend for Mazuri Waste Management System (HTML + CSS + Vanilla JS)",
+  "private": true,
+  "dependencies": {
+    "http-server": "^14.1.1"
+  },
+  "scripts": {
+    "start": "http-server public -p 3000 -c-1",
+    "serve": "http-server public -p 3000 -c-1"
+  }
+}
+

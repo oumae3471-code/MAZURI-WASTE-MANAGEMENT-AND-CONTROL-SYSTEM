@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Mazuri</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <a href="dashboard.html">Mazuri</a>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+        <li class="nav-item"><a href="collections.html" class="nav-link">Collections</a></li>
+        <li class="nav-item"><a href="schedules.html" class="nav-link">Schedules</a></li>
+        <li class="nav-item"><a href="disposal.html" class="nav-link">Disposal</a></li>
+        <li class="nav-item"><a href="reports.html" class="nav-link">Reports</a></li>
+        <li class="nav-item"><a href="users.html" class="nav-link">Users</a></li>
+        <li class="nav-item"><a href="https://github.com/oumae3471-code/MAZURI-WASTE-MANAGEMENT-AND-CONTROL-SYSTEM" target="_blank" class="nav-link">Project Repo</a></li>
+        <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Dashboard</h1>
+    
+    <div id="alertContainer"></div>
+
+    <div class="grid">
+      <div class="stat-card">
+        <h3>Total Collections</h3>
+        <div class="value" id="totalCollections">--</div>
+      </div>
+      <div class="stat-card">
+        <h3>Pending Schedules</h3>
+        <div class="value" id="pendingSchedules">--</div>
+      </div>
+      <div class="stat-card">
+        <h3>Available Sites</h3>
+        <div class="value" id="availableSites">--</div>
+      </div>
+      <div class="stat-card">
+        <h3>Active Users</h3>
+        <div class="value" id="activeUsers">--</div>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header">
+        <h2>Recent Collections</h2>
+      </div>
+      <div class="table-responsive">
+        <table id="collectionsTable">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Type</th>
+              <th>Quantity</th>
+              <th>Location</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="collectionsBody">
+            <tr>
+              <td colspan="6" class="text-center">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header">
+        <h2>Upcoming Schedules</h2>
+      </div>
+      <div class="table-responsive">
+        <table id="schedulesTable">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="schedulesBody">
+            <tr>
+              <td colspan="5" class="text-center">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+</html>
